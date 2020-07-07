@@ -1,0 +1,28 @@
+-- 720 x 1280
+
+local camera = require "orthographic.camera"
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
+
+	-- self.camera = hash("/camera")
+	-- self.dragger = hash("/dragger")
+	-- self.dragging = false
+end
+
+function on_input(self, action_id, action)
+-- 	if action_id == hash("touch") then
+-- 		if not action.released then
+-- 			self.dragging = true
+-- 			local screen_coords = vmath.vector3( action.x, action.y, 0)
+-- 			local pos = camera.screen_to_world(self.camera, screen_coords)
+-- 
+-- 			go.set_position(pos, self.dragger)
+-- 		else
+-- 			if self.dragging then
+-- 				self.dragging = false
+-- 				go.set_position(vmath.vector3(20000), self.dragger)
+-- 			end
+-- 		end
+-- 	end
+end
