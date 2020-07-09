@@ -1,0 +1,2 @@
+go.property("health", 100)
+go.property("collisionobject", go.get_id('./collisionobject'))
