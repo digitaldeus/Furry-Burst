@@ -1,45 +1,5 @@
 name: "main"
 instances {
-  id: "animal"
-  prototype: "/main/animal.go"
-  position {
-    x: 281.0
-    y: 455.0
-    z: 0.0
-  }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
-  }
-  scale3 {
-    x: 1.0
-    y: 1.0
-    z: 1.0
-  }
-}
-instances {
-  id: "animal1"
-  prototype: "/main/animal.go"
-  position {
-    x: 344.0
-    y: 690.0
-    z: 0.0
-  }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
-  }
-  scale3 {
-    x: 1.0
-    y: 1.0
-    z: 1.0
-  }
-}
-instances {
   id: "camera"
   prototype: "/orthographic/camera.go"
   position {
@@ -61,10 +21,28 @@ instances {
 }
 scale_along_z: 0
 embedded_instances {
-  id: "go"
+  id: "controller"
   data: "components {\n"
   "  id: \"main\"\n"
   "  component: \"/main/main.script\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"animal_factory\"\n"
+  "  type: \"factory\"\n"
+  "  data: \"prototype: \\\"/main/animal.go\\\"\\n"
+  "load_dynamically: false\\n"
+  "\"\n"
   "  position {\n"
   "    x: 0.0\n"
   "    y: 0.0\n"
@@ -103,7 +81,7 @@ embedded_instances {
   "  data: \"collision_shape: \\\"\\\"\\n"
   "type: COLLISION_OBJECT_TYPE_STATIC\\n"
   "mass: 0.0\\n"
-  "friction: 0.1\\n"
+  "friction: 0.5\\n"
   "restitution: 0.0\\n"
   "group: \\\"level\\\"\\n"
   "mask: \\\"animals\\\"\\n"

@@ -39,8 +39,13 @@ local function add_joint(self, other_id)
 
 	local other_url = collisionobject_path_for(other_id)
 	local last_joint_url = collisionobject_path_for(self.last_joint)
+	local joint_length = 75
+
+	if self.last_joint ~= go.get_id() then
+		joint_length = 150
+	end
 	
-	physics.create_joint(physics.JOINT_TYPE_SPRING, other_url, JOINT_ID, vmath.vector3(0), last_joint_url, vmath.vector3(0), { length = 100, frequency = 1, damping = 0.8 })
+	physics.create_joint(physics.JOINT_TYPE_FIXED, other_url, JOINT_ID, vmath.vector3(0), last_joint_url, vmath.vector3(0), { max_length = joint_length, collide_connect = self.last_joint ~= go.get_id() })
 	
 	self.joints[other_id] = other_url
 

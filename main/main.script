@@ -1,13 +1,23 @@
 -- 720 x 1280
 
 local camera = require "orthographic.camera"
+local num_animals = 0
+local max_animals = 50
+
+function handle_timer(self, handle, time_elapsed)
+	if num_animals < max_animals then
+		factory.create('#animal_factory', vmath.vector3(math.random(200, 600), 1400, 0), nil, nil, 0.75)
+		num_animals =  num_animals + 1
+	else
+		timer.cancel(handle)
+	end
+end
 
 function init(self)
 	msg.post(".", "acquire_input_focus")
 
-	-- self.camera = hash("/camera")
-	-- self.dragger = hash("/dragger")
-	-- self.dragging = false
+	spawn_handle = timer.delay(0.1, true, handle_timer)
+	
 end
 
 function on_input(self, action_id, action)
