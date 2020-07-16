@@ -1,5 +1,5 @@
 components {
-  id: "animal"
+  id: "script"
   component: "/main/animal.script"
   position {
     x: 0.0
@@ -17,7 +17,7 @@ embedded_components {
   id: "sprite"
   type: "sprite"
   data: "tile_set: \"/main/main.atlas\"\n"
-  "default_animation: \"bear\"\n"
+  "default_animation: \"penguin\"\n"
   "material: \"/builtins/materials/sprite.material\"\n"
   "blend_mode: BLEND_MODE_ALPHA\n"
   ""

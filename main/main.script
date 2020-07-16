@@ -1,13 +1,26 @@
 -- 720 x 1280
+require('main.utils')
+require('main.globals')
+
+math.randomseed(os.clock()*100000000000)
 
 local camera = require "orthographic.camera"
 local num_animals = 0
-local max_animals = 50
+local max_animals = 75 -- max on screen at once
+local total_animals = max_animals * 4 -- total to spawn
+local max_animal_types = 5
+local animal_types = {} -- pool of types to spawn from for this round
+local animals_to_spawn = {} -- queue of animals to spawn
 
 function handle_timer(self, handle, time_elapsed)
-	if num_animals < max_animals then
-		factory.create('#animal_factory', vmath.vector3(math.random(200, 600), 1400, 0), nil, nil, 0.75)
-		num_animals =  num_animals + 1
+	if num_animals < max_animals and animals_to_spawn[1] then
+		local animal_type = table.remove(animals_to_spawn, 1)
+		
+		local new_animal = factory.create('#animal_factory', vmath.vector3(math.random(200, 600), 1500, 0), nil, nil, 0.75)
+
+		msg.post(new_animal, 'set_type', {type=animal_type})
+		
+		num_animals = num_animals + 1
 	else
 		timer.cancel(handle)
 	end
@@ -16,23 +29,46 @@ end
 function init(self)
 	msg.post(".", "acquire_input_focus")
 
-	spawn_handle = timer.delay(0.1, true, handle_timer)
+	local num_animal_types = table.getn(M.animals)
+	print(num_animal_types)
+
+	while #animal_types < max_animal_types do
+		local animal = M.animals[math.random(num_animal_types)]
+		
+		if not table_contains(animal_types, animal) then
+			table.insert(animal_types, animal)
+		end
+	end
+
+	shuffle(animal_types)
+	shuffle(animal_types)
+	shuffle(animal_types)
+	pprint(animal_types)
+
+	repeat
+		local current_animal = animal_types[math.random(max_animal_types)]
+
+		for i=1, math.random(3, 9) do
+			table.insert(animals_to_spawn, hash(current_animal))
+		end
+	until #animals_to_spawn > total_animals
+
+	shuffle(animals_to_spawn)
+	-- pprint(animals_to_spawn)
 	
+	start_timer()
 end
 
-function on_input(self, action_id, action)
--- 	if action_id == hash("touch") then
--- 		if not action.released then
--- 			self.dragging = true
--- 			local screen_coords = vmath.vector3( action.x, action.y, 0)
--- 			local pos = camera.screen_to_world(self.camera, screen_coords)
--- 
--- 			go.set_position(pos, self.dragger)
--- 		else
--- 			if self.dragging then
--- 				self.dragging = false
--- 				go.set_position(vmath.vector3(20000), self.dragger)
--- 			end
--- 		end
--- 	end
+function start_timer()
+	timer.delay(0.05, true, handle_timer)
+end
+
+function on_message(self, message_id, message)
+	if message_id == hash('animals_gone') then
+		log('animals gone')
+		num_animals = num_animals - message.subtract
+		print(num_animals)
+		start_timer()
+		log('animals gone end')
+	end
 end

@@ -29,4 +29,7 @@ input_method = HiddenInputField
 [physics]
 gravity_y = -1000.0
 scale = 0.01
+max_collisions = 256
+max_contacts = 512
+debug = 0
 

@@ -1,2 +1,16 @@
-go.property("health", 100)
-go.property("chained", false)
+require('main.utils')
+go.property('type', hash(''))
+
+-- function init(self)
+-- 	log("animal init")
+-- 	print(self.type)
+-- 	msg.post('#sprite', 'play_animation', {id=self.type})
+-- 	log("end animal init")
+-- end
+
+function on_message(self, message_id, message)
+	if message_id == hash('set_type') then
+		self.type = message.type
+		msg.post('#sprite', 'play_animation', {id=message.type})
+	end
+end

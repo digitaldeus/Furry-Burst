@@ -1,11 +1,9 @@
 -- 720 x 1280
 
-function log(message, use_separator)
-	if use_separator then
-		print('--- ' .. message .. ' ---')
-	else
-		print(message)
-	end
+require('main.utils')
+
+function log(message)
+	print('--- ' .. tostring(message) .. ' ---')
 end
 
 local camera = require "orthographic.camera"
@@ -16,42 +14,67 @@ local function collisionobject_path_for(id)
 	return msg.url(nil, id, "collisionobject")
 end
 
+local current_type
 
 local function remove_all_joints(self)
 	log('removing all joints', true)
+
+	local animals_removed = #self.joints
 	for k, v in pairs(self.joints) do
-		physics.destroy_joint(v, JOINT_ID)
+		physics.destroy_joint(collisionobject_path_for(v), JOINT_ID)
+		go.delete(v)
 		self.joints[k] = nil
 	end
 
-	self.last_joint = go.get_id()
+	msg.post('/controller', 'animals_gone', {subtract=animals_removed})
 
 	log('done removing all joints', true)
 end
 
-local function add_joint(self, other_id)
-	log('adding joint between', true)
-	log(self.last_joint)
-	log("and")
-	log(other_id)
+local function create_joint(start_url, end_url, joint_length, collide)
+	collide = collide or false
+	log('creating joint between')
+	print(start_url)
+	print(end_url)
+	
+	-- physics.create_joint(physics.JOINT_TYPE_FIXED, start_url, JOINT_ID, vmath.vector3(0), end_url, vmath.vector3(0), { max_length = joint_length, collide_connect = collide })
+	physics.create_joint(physics.JOINT_TYPE_SPRING, start_url, JOINT_ID, vmath.vector3(0), end_url, vmath.vector3(0), { length = joint_length, frequency=0, damping=0, collide_connect = collide })
+	
+	log('done creating joint')
+end
 
-	assert(self.joints[other_id] == nil, "joint already exists for this object")
+local function add_link(self, other_id)
+	assert(not table_contains(self.joints, collisionobject_path_for(other_id)), "joint already exists for this object")
+	log("add link")
 
 	local other_url = collisionobject_path_for(other_id)
-	local last_joint_url = collisionobject_path_for(self.last_joint)
-	local joint_length = 75
+	local other_type = go.get(msg.url(nil, other_id, 'script'), 'type')
+	local self_url = collisionobject_path_for(go.get_id())
 
-	if self.last_joint ~= go.get_id() then
-		joint_length = 150
+	if self.joints[1] then
+		print(self.current_type)
+		print(other_type)
+		if self.current_type ~= other_type then
+			-- we should only be colliding with the current chain type
+			return
+		end
+		
+		local first_joint_url = collisionobject_path_for(self.joints[1])
+
+		log("destring joint")
+		print(first_joint_url)
+		physics.destroy_joint(first_joint_url, JOINT_ID)
+		
+		create_joint(first_joint_url, other_url, 125)
+	else
+		self.current_type = other_type
 	end
 	
-	physics.create_joint(physics.JOINT_TYPE_FIXED, other_url, JOINT_ID, vmath.vector3(0), last_joint_url, vmath.vector3(0), { max_length = joint_length, collide_connect = self.last_joint ~= go.get_id() })
+	create_joint(other_url, self_url, 75, true)
 	
-	self.joints[other_id] = other_url
-
-	self.last_joint = other_id
-	
-	log('done adding joint', true)
+	table.insert(self.joints, 1, other_id)
+	pprint(self.joints)
+	log("end add link")
 end
 
 function init(self)
@@ -60,8 +83,6 @@ function init(self)
 	self.camera = hash("/camera")
 	self.dragging = false
 	self.joints = {}
-
-	self.last_joint = go.get_id()
 end
 
 function on_input(self, action_id, action)
@@ -86,9 +107,8 @@ end
 function on_message(self, message_id, message)
 	if message_id == hash("contact_point_response") then
 		local is_in_group = message.other_group == hash("animals")
-		
-		if is_in_group and not self.joints[message.other_id] then
-			add_joint(self, message.other_id)
+		if is_in_group and not table_contains(self.joints, message.other_id) then 
+			add_link(self, message.other_id)
 		end
 	end
 end
