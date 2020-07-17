@@ -1,16 +1,27 @@
 require('main.utils')
+require('main.globals')
 go.property('type', hash(''))
 
--- function init(self)
--- 	log("animal init")
--- 	print(self.type)
--- 	msg.post('#sprite', 'play_animation', {id=self.type})
--- 	log("end animal init")
--- end
+local booming = false
+
+function update(self, dt)
+	if self.booming then
+		
+	end
+end
 
 function on_message(self, message_id, message)
-	if message_id == hash('set_type') then
+	if message_id == hash(M.SET_TYPE) then
 		self.type = message.type
 		msg.post('#sprite', 'play_animation', {id=message.type})
+	elseif message_id == M.GO_BOOM then
+		self.booming = true
+		pprint(message)
+		timer.delay(message.delay, false, remove_self)
+		go.set('#collisionobject', "linear_damping", 1)
 	end
+end
+
+function remove_self(self) 
+	go.delete()
 end

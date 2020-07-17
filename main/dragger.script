@@ -1,6 +1,7 @@
 -- 720 x 1280
 
 require('main.utils')
+require('main.globals')
 
 function log(message)
 	print('--- ' .. tostring(message) .. ' ---')
@@ -15,6 +16,7 @@ local JOINT_ID = "dragger_joint"
 local scale_selected = .85
 local scale_unselected = 0.75
 local scale_time = .1
+local delete_delay = .9
 
 local function collisionobject_path_for(id)
 	return msg.url(nil, id, "collisionobject")
@@ -27,12 +29,18 @@ local function remove_all_joints(self)
 
 	local animals_removed = #self.joints
 	local remove_go = animals_removed >= 3
+
+	-- use to tell game objects to delete themselves sequentially using a delay
+	local cur_delete_time = 0
+	
 	for k, v in pairs(self.joints) do
 		physics.destroy_joint(collisionobject_path_for(v), JOINT_ID)
 		self.joints[k] = nil
 
 		if remove_go then
-			go.delete(v)
+			-- go.delete(v)
+			msg.post(v, M.GO_BOOM, {delay=cur_delete_time})
+			cur_delete_time = cur_delete_time + delete_delay
 		else
 			go.animate(v, 'scale', go.PLAYBACK_ONCE_FORWARD, scale_unselected, go.EASING_OUTSINE, scale_time)
 		end
