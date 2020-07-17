@@ -10,6 +10,12 @@ local camera = require "orthographic.camera"
 
 local JOINT_ID = "dragger_joint"
 
+
+-- animation settings
+local scale_selected = .85
+local scale_unselected = 0.75
+local scale_time = .1
+
 local function collisionobject_path_for(id)
 	return msg.url(nil, id, "collisionobject")
 end
@@ -20,13 +26,21 @@ local function remove_all_joints(self)
 	log('removing all joints', true)
 
 	local animals_removed = #self.joints
+	local remove_go = animals_removed >= 3
 	for k, v in pairs(self.joints) do
 		physics.destroy_joint(collisionobject_path_for(v), JOINT_ID)
-		go.delete(v)
 		self.joints[k] = nil
+
+		if remove_go then
+			go.delete(v)
+		else
+			go.animate(v, 'scale', go.PLAYBACK_ONCE_FORWARD, scale_unselected, go.EASING_OUTSINE, scale_time)
+		end
 	end
 
-	msg.post('/controller', 'animals_gone', {subtract=animals_removed})
+	if remove_go then
+		msg.post('/controller', 'animals_gone', {subtract=animals_removed})
+	end
 
 	log('done removing all joints', true)
 end
@@ -38,7 +52,7 @@ local function create_joint(start_url, end_url, joint_length, collide)
 	print(end_url)
 	
 	-- physics.create_joint(physics.JOINT_TYPE_FIXED, start_url, JOINT_ID, vmath.vector3(0), end_url, vmath.vector3(0), { max_length = joint_length, collide_connect = collide })
-	physics.create_joint(physics.JOINT_TYPE_SPRING, start_url, JOINT_ID, vmath.vector3(0), end_url, vmath.vector3(0), { length = joint_length, frequency=0, damping=0, collide_connect = collide })
+	physics.create_joint(physics.JOINT_TYPE_SPRING, start_url, JOINT_ID, vmath.vector3(0), end_url, vmath.vector3(0), { length = joint_length, frequency=10, damping=0, collide_connect = collide })
 	
 	log('done creating joint')
 end
@@ -52,8 +66,8 @@ local function add_link(self, other_id)
 	local self_url = collisionobject_path_for(go.get_id())
 
 	if self.joints[1] then
-		print(self.current_type)
-		print(other_type)
+		-- print(self.current_type)
+		-- print(other_type)
 		if self.current_type ~= other_type then
 			-- we should only be colliding with the current chain type
 			return
@@ -62,7 +76,7 @@ local function add_link(self, other_id)
 		local first_joint_url = collisionobject_path_for(self.joints[1])
 
 		log("destring joint")
-		print(first_joint_url)
+		-- print(first_joint_url)
 		physics.destroy_joint(first_joint_url, JOINT_ID)
 		
 		create_joint(first_joint_url, other_url, 125)
@@ -71,9 +85,10 @@ local function add_link(self, other_id)
 	end
 	
 	create_joint(other_url, self_url, 75, true)
+	go.animate(other_id, 'scale', go.PLAYBACK_ONCE_FORWARD, scale_selected, go.EASING_OUTSINE, scale_time)
 	
 	table.insert(self.joints, 1, other_id)
-	pprint(self.joints)
+	-- pprint(self.joints)
 	log("end add link")
 end
 
@@ -98,8 +113,9 @@ function on_input(self, action_id, action)
 				self.dragging = false
 
 				remove_all_joints(self)
-				go.set_position(vmath.vector3(20000))
 			end
+
+			go.set_position(vmath.vector3(20000))
 		end
 	end
 end
