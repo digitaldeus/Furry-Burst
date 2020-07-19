@@ -23,6 +23,7 @@ local function collisionobject_path_for(id)
 end
 
 local current_type
+local link_timer
 
 local function remove_all_joints(self)
 	log('removing all joints', true)
@@ -43,7 +44,7 @@ local function remove_all_joints(self)
 			cur_delete_time = cur_delete_time + delete_delay
 		else
 			go.animate(v, 'scale', go.PLAYBACK_ONCE_FORWARD, scale_unselected, go.EASING_OUTSINE, scale_time)
-			msg.post(other_id, M.HELD, {held=true})
+			msg.post(v, M.HELD, {held=false})
 		end
 	end
 
@@ -64,6 +65,11 @@ local function create_joint(start_url, end_url, joint_length, collide)
 	physics.create_joint(physics.JOINT_TYPE_SPRING, start_url, JOINT_ID, vmath.vector3(0), end_url, vmath.vector3(0), { length = joint_length, frequency=10, damping=0, collide_connect = collide })
 	
 	log('done creating joint')
+end
+
+local function link_timed_out(self, handle, time_elapsed)
+	stop_dragging(self)
+	link_timer = nil
 end
 
 local function add_link(self, other_id)
@@ -91,6 +97,11 @@ local function add_link(self, other_id)
 		create_joint(first_joint_url, other_url, 125)
 	else
 		self.current_type = other_type
+		if link_timer then
+			timer.cancel(link_timer)
+		end
+			
+		link_timer = timer.delay(5, false, link_timed_out)
 	end
 	
 	create_joint(other_url, self_url, 75, true)
@@ -100,6 +111,29 @@ local function add_link(self, other_id)
 	table.insert(self.joints, 1, other_id)
 	-- pprint(self.joints)
 	log("end add link")
+end
+
+function start_dragging(self)
+	self.dragging = true
+	msg.post('#collisionobject', '#enable')
+end
+
+function stop_dragging(self)
+	if self.dragging then
+		self.dragging = false
+
+		remove_all_joints(self)
+	end
+
+	msg.post('#collisionobject', '#disable')
+	go.set_position(vmath.vector3(20000))
+end
+
+function drag(self, action)
+	local screen_coords = vmath.vector3( action.x, action.y, 0)
+	local pos = camera.screen_to_world(self.camera, screen_coords)
+
+	go.set_position(pos)
 end
 
 function init(self)
@@ -112,20 +146,14 @@ end
 
 function on_input(self, action_id, action)
 	if action_id == hash("touch") then
-		if not action.released then
-			self.dragging = true
-			local screen_coords = vmath.vector3( action.x, action.y, 0)
-			local pos = camera.screen_to_world(self.camera, screen_coords)
+		if action.pressed then
+			start_dragging(self)
+		elseif action.released then
+			stop_dragging(self)
+		end
 
-			go.set_position(pos)
-		else
-			if self.dragging then
-				self.dragging = false
-
-				remove_all_joints(self)
-			end
-
-			go.set_position(vmath.vector3(20000))
+		if self.dragging then
+			drag(self, action)
 		end
 	end
 end
