@@ -17,7 +17,7 @@ emitters {
   tile_source: "/main/main.atlas"
   animation: "Puff"
   material: "/builtins/materials/particlefx.material"
-  blend_mode: BLEND_MODE_ADD
+  blend_mode: BLEND_MODE_ALPHA
   particle_orientation: PARTICLE_ORIENTATION_DEFAULT
   inherit_velocity: 0.0
   max_particle_count: 128
@@ -77,7 +77,7 @@ emitters {
     key: EMITTER_KEY_PARTICLE_SPEED
     points {
       x: 0.0
-      y: 80.0
+      y: 120.0
       t_x: 1.0
       t_y: 0.0
     }
@@ -87,7 +87,7 @@ emitters {
     key: EMITTER_KEY_PARTICLE_SIZE
     points {
       x: 0.0
-      y: 20.0
+      y: 100.0
       t_x: 1.0
       t_y: 0.0
     }
@@ -182,16 +182,22 @@ emitters {
       t_y: 0.0
     }
     points {
-      x: 0.30040324
+      x: 0.19879033
       y: 0.72667736
       t_x: 0.72909546
       t_y: 0.684412
     }
     points {
+      x: 0.425
+      y: 0.5229203
+      t_x: 0.6356285
+      t_y: -0.77199507
+    }
+    points {
       x: 1.0
-      y: 0.028186187
-      t_x: 0.42803255
-      t_y: 0.90376335
+      y: -0.0021829945
+      t_x: 0.9290924
+      t_y: -0.36984766
     }
   }
   particle_properties {
@@ -232,8 +238,8 @@ emitters {
     points {
       x: 1.0
       y: 0.0
-      t_x: 0.07194582
-      t_y: 0.99740857
+      t_x: 0.500922
+      t_y: 0.8654924
     }
   }
   particle_properties {

@@ -13,6 +13,21 @@ components {
     w: 1.0
   }
 }
+components {
+  id: "pop"
+  component: "/main/pop.particlefx"
+  position {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  }
+  rotation {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+}
 embedded_components {
   id: "sprite"
   type: "sprite"
@@ -72,6 +87,48 @@ embedded_components {
     x: 0.0
     y: 0.0
     z: 0.0
+  }
+  rotation {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+}
+embedded_components {
+  id: "pop_sound"
+  type: "sound"
+  data: "sound: \"/assets/sounds/pop.ogg\"\n"
+  "looping: 0\n"
+  "group: \"master\"\n"
+  "gain: 1.0\n"
+  "pan: 0.0\n"
+  "speed: 1.0\n"
+  ""
+  position {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  }
+  rotation {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+}
+embedded_components {
+  id: "spriteoutline"
+  type: "sprite"
+  data: "tile_set: \"/main/main.atlas\"\n"
+  "default_animation: \"penguin\"\n"
+  "material: \"/main/animal.material\"\n"
+  "blend_mode: BLEND_MODE_ALPHA\n"
+  ""
+  position {
+    x: 0.0
+    y: 0.0
+    z: -0.1
   }
   rotation {
     x: 0.0

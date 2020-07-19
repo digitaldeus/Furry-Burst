@@ -16,7 +16,7 @@ local JOINT_ID = "dragger_joint"
 local scale_selected = .85
 local scale_unselected = 0.75
 local scale_time = .1
-local delete_delay = .9
+local delete_delay = .1
 
 local function collisionobject_path_for(id)
 	return msg.url(nil, id, "collisionobject")
@@ -43,6 +43,7 @@ local function remove_all_joints(self)
 			cur_delete_time = cur_delete_time + delete_delay
 		else
 			go.animate(v, 'scale', go.PLAYBACK_ONCE_FORWARD, scale_unselected, go.EASING_OUTSINE, scale_time)
+			msg.post(other_id, M.HELD, {held=true})
 		end
 	end
 
@@ -94,6 +95,7 @@ local function add_link(self, other_id)
 	
 	create_joint(other_url, self_url, 75, true)
 	go.animate(other_id, 'scale', go.PLAYBACK_ONCE_FORWARD, scale_selected, go.EASING_OUTSINE, scale_time)
+	msg.post(other_id, M.HELD, {held=true})
 	
 	table.insert(self.joints, 1, other_id)
 	-- pprint(self.joints)

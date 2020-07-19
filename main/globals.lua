@@ -38,3 +38,4 @@ M.animals = {
 -- message constants
 M.GO_BOOM = hash('goboom')
 M.SET_TYPE = hash('set_type')
+M.HELD = hash('heldl')

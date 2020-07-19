@@ -1,8 +1,16 @@
 require('main.utils')
 require('main.globals')
+
 go.property('type', hash(''))
+go.property('held', true)
 
 local booming = false
+
+function init(self)
+	local size = go.get('#sprite', 'size')
+
+	go.set('#spriteoutline', 'scale', vmath.vector3(.5))
+end
 
 function update(self, dt)
 	if self.booming then
@@ -14,14 +22,24 @@ function on_message(self, message_id, message)
 	if message_id == hash(M.SET_TYPE) then
 		self.type = message.type
 		msg.post('#sprite', 'play_animation', {id=message.type})
+		msg.post('#spriteoutline', 'play_animation', {id=message.type})
+	elseif message_id == hash(M.HELD) then
+		if message.held then
+			go.animate('#spriteoutline', 'scale', go.PLAYBACK_ONCE_FORWARD, 1.1, go.EASING_OUTSINE, 0.25)
+		else
+			go.animate('#spriteoutline', 'scale', go.PLAYBACK_ONCE_FORWARD, .5, go.EASING_OUTSINE, 0.25)
+		end
 	elseif message_id == M.GO_BOOM then
 		self.booming = true
 		pprint(message)
 		timer.delay(message.delay, false, remove_self)
 		go.set('#collisionobject', "linear_damping", 1)
+		go.set('#collisionobject', "angular_damping", 1)
 	end
 end
 
 function remove_self(self) 
+	sound.play('#pop_sound', {})
+	particlefx.play('#pop')
 	go.delete()
 end

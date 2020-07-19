@@ -57,6 +57,8 @@ function init(self)
 	-- pprint(animals_to_spawn)
 	
 	start_timer()
+
+	sound.play('#background_music')
 end
 
 function start_timer()
