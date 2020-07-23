@@ -25,7 +25,10 @@ end
 local current_type
 local link_timer
 
+local started = false
+
 local function remove_all_joints(self)
+	if not self.started then return end
 	log('removing all joints', true)
 
 	local animals_removed = #self.joints
@@ -164,6 +167,14 @@ function on_message(self, message_id, message)
 		if is_in_group and not table_contains(self.joints, message.other_id) then 
 			add_link(self, message.other_id)
 		end
+	end
+
+	if message_id == hash('start_game') then
+		self.started = true
+	end
+
+	if message_id == hash('end_game') then
+		self.started = false
 	end
 end
 

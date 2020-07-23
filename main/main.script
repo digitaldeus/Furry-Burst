@@ -7,7 +7,7 @@ math.randomseed(os.clock()*100000000000)
 local camera = require "orthographic.camera"
 local num_animals = 0
 local max_animals = 75 -- max on screen at once
-local total_animals = max_animals * 4 -- total to spawn
+local total_animals = 3 -- total to spawn
 local max_animal_types = 5
 local animal_types = {} -- pool of types to spawn from for this round
 local animals_to_spawn = {} -- queue of animals to spawn
@@ -26,15 +26,19 @@ function handle_timer(self, handle, time_elapsed)
 	end
 end
 
-function init(self)
-	msg.post(".", "acquire_input_focus")
+function spawn_animals()
+	-- reset tracking vars
+	animal_types = {}
+	animals_to_spawn = {}
+	num_animals = 0
 
+	-- spawn new animals
 	local num_animal_types = table.getn(M.animals)
 	print(num_animal_types)
 
 	while #animal_types < max_animal_types do
 		local animal = M.animals[math.random(num_animal_types)]
-		
+
 		if not table_contains(animal_types, animal) then
 			table.insert(animal_types, animal)
 		end
@@ -55,8 +59,12 @@ function init(self)
 
 	shuffle(animals_to_spawn)
 	-- pprint(animals_to_spawn)
-	
+
 	start_timer()
+end
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
 
 	sound.play('#background_music')
 end
@@ -71,6 +79,15 @@ function on_message(self, message_id, message)
 		num_animals = num_animals - message.subtract
 		print(num_animals)
 		start_timer()
+
+		if num_animals == 0 then
+			-- print('ending game')
+			
+			timer.delay(1, false, function() msg.post('#game_gui', 'end_game') end)
+		end
 		log('animals gone end')
+
+	elseif message_id == hash('start_game') then
+		spawn_animals()
 	end
 end
