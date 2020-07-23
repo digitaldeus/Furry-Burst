@@ -29,7 +29,7 @@ local function remove_all_joints(self)
 	log('removing all joints', true)
 
 	local animals_removed = #self.joints
-	local remove_go = animals_removed >= 3
+	local remove_go = true --animals_removed >= 3
 
 	-- use to tell game objects to delete themselves sequentially using a delay
 	local cur_delete_time = 0
@@ -165,4 +165,13 @@ function on_message(self, message_id, message)
 			add_link(self, message.other_id)
 		end
 	end
+end
+
+function update(self)
+	local last = go.get_id()
+	-- for i, v in ipairs(self.joint) do
+	-- 	local startpos = go.get(last, 'position')
+	-- 	local endpos = go.get(v, 'position')
+	-- 	msg.post('@render:', message_id)
+	-- end
 end
